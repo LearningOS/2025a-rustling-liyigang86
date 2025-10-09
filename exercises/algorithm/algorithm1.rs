@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -70,13 +70,51 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    where
+        T: PartialOrd ,
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut result = LinkedList::new();
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+        
+        // 同时遍历两个有序链表，每次取较小的值添加到新链表
+        while current_a.is_some() || current_b.is_some() {
+            match (current_a, current_b) {
+                (Some(ptr_a), Some(ptr_b)) => {
+                 unsafe {
+                    let val_a =  {&(*ptr_a.as_ptr()).val};
+                    let val_b =  {&(*ptr_b.as_ptr()).val};
+                    if val_a <= val_b {
+                        
+                        let node =Box::from_raw(ptr_a.as_ptr());
+                        current_a = node.next;
+                        result.add(node.val);
+                    } else {
+                        let node =Box::from_raw(ptr_b.as_ptr());
+                        current_b = node.next;
+                        result.add(node.val);
+                    }
+                }
+                }
+                (Some(ptr_a), None) => {
+                    unsafe {
+                   let node =Box::from_raw(ptr_a.as_ptr());
+                    current_a = node.next;
+                    result.add(node.val);
+                    }
+                }
+                (None, Some(ptr_b)) => {
+                    unsafe {
+                    let node =Box::from_raw(ptr_b.as_ptr());
+                    current_b = node.next;
+                    result.add(node.val);
+                    }
+                }
+                (None, None) => break,
+            }
         }
+        
+        result
 	}
 }
 
